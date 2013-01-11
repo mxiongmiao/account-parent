@@ -1,0 +1,1 @@
+account相关的项目都继承该pom

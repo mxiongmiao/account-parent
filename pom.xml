@@ -1,0 +1,168 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.maxm</groupId>
+  <artifactId>account-parent</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>account-parent</name>
+  <url>http://***.com</url>
+  <description>所有maven项目都继承该pom</description>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.surefire.version>2.5</maven.surefire.version>
+  	<maven.compiler.source.version>1.6</maven.compiler.source.version>
+  	<maven.compiler.target.version>1.6</maven.compiler.target.version>
+  	<maven.resource.version>2.4</maven.resource.version>
+  	<junit.version>4.11</junit.version>
+  	<scope.test>test</scope.test>
+  	<skipTests>true</skipTests>
+  	<spring.version>2.5.6</spring.version>
+  	<javax.servlet.servlet-api.version>2.5</javax.servlet.servlet-api.version>
+  	<javax.servlet.jsp.jsp-api.version>2.2</javax.servlet.jsp.jsp-api.version>
+  	<javax.servlet.jstl.version>1.2</javax.servlet.jstl.version>
+  </properties>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${maven.surefire.version}</version>
+					<configuration>
+						<skipTests>${skipTests}</skipTests>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<source>${maven.compiler.source.version}</source>
+						<target>${maven.compiler.target.version}</target>
+						<encoding>${project.build.sourceEncoding}</encoding> 
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>${maven.resource.version}</version>
+					<configuration>
+						<encoding>${project.build.sourceEncoding}</encoding>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<!-- Multiple specifications of a set of goals to execute during the 
+ build lifecycle, each having (possibly) different configuration. -->
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<goals>
+								<goal>attach-sources</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<encoding>${project.build.sourceEncoding}</encoding>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		<resources>
+			<resource>
+				<!-- Describe the directory where the resources are stored. The path 
+ is relative to the POM. -->
+				<directory>src/main/resources</directory>
+				<!-- Whether resources are filtered to replace tokens with 
+ parameterised values or not. The values are taken from the 
+ properties element and from the properties in the files listed in 
+ the filters element. -->
+				<filtering>true</filtering>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+			</testResource>
+		</testResources>
+	</build>
+	
+	<!-- 
+		  *dependencyManagement 不会给当前项目和子项目引入实际的依赖， 不过却可以被子项目继承，
+		  *一般惯用做法是父pom中定义好每个依赖的完整信息，子项目只需通过groupId 和 artifactId继承父pom中的定义，
+		  *这样做的好处是统一了所有的版本， 同时一定程度上减少了子项目的配置。
+	-->
+  <dependencyManagement>
+    <dependencies>
+	    <dependency>
+	      <groupId>junit</groupId>
+	      <artifactId>junit</artifactId>
+	      <version>${junit.version}</version>
+	      <scope>${scope.test}</scope>
+	    </dependency>
+	    <dependency>
+			 <groupId>org.springframework</groupId>
+			 <artifactId>spring</artifactId>
+			 <version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>servlet-api</artifactId>
+				<version>${javax.servlet.servlet-api.version}</version>
+				<!-- provided 指明使用容器提供的 -->
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet.jsp</groupId>
+				<artifactId>jsp-api</artifactId>
+				<version>${javax.servlet.jsp.jsp-api.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>jstl</artifactId>
+				<version>${javax.servlet.jstl.version}</version>
+			</dependency>
+	  </dependencies>
+  </dependencyManagement>
+  
+  <!-- The lists of the remote repositories for discovering 
+ dependencies and extensions. note:where to download dependencies && extensions from-->
+  <repositories>
+  	<repository>
+  		<!-- A unique identifier for a repository. This is used to match the 
+ repository to configuration in the settings.xml file -->
+  		<id>nexus</id>
+  		<name>private nexus repository</name>
+  		<url>http://192.168.152.10:8081/nexus/content/groups/public</url>
+  	</repository>
+  </repositories>
+  <!-- The lists of the remote repositories for discovering plugins for 
+ builds and reports. note:where to download plugins and reports-->
+  <pluginRepositories>
+  	<pluginRepository>
+  		<id>nexus</id>
+  		<name>private nexus repository</name>
+  		<url>http://192.168.152.10:8081/nexus/content/groups/public</url>
+  	</pluginRepository>
+  </pluginRepositories>
+  
+  <distributionManagement>
+  	<!-- Where to deploy snapshots of artifacts to. If not given, it 
+ defaults to the repository element. -->
+  	<snapshotRepository>
+  		<!-- A unique identifier for a repository. This is used to match the 
+ repository to configuration in the settings.xml file, for example. -->
+  		<id>nexus-snapshots</id>
+  		<url>http://192.168.152.10:8081/nexus/content/repositories/snapshots/</url>
+  	</snapshotRepository>
+  </distributionManagement>
+</project>
