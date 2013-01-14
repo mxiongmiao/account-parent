@@ -24,6 +24,9 @@
   	<javax.servlet.servlet-api.version>2.5</javax.servlet.servlet-api.version>
   	<javax.servlet.jsp.jsp-api.version>2.2</javax.servlet.jsp.jsp-api.version>
   	<javax.servlet.jstl.version>1.2</javax.servlet.jstl.version>
+  	<org.apache.ibatis.ibatis-sqlmap.version>2.3.4.726</org.apache.ibatis.ibatis-sqlmap.version>
+  	<mysql-connector-java.version>5.1.22</mysql-connector-java.version>
+  	<commons-dbcp.version>1.4</commons-dbcp.version>
   </properties>
 
 	<build>
@@ -131,6 +134,21 @@
 				<artifactId>jstl</artifactId>
 				<version>${javax.servlet.jstl.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.apache.ibatis</groupId>
+				<artifactId>ibatis-sqlmap</artifactId>
+				<version>${org.apache.ibatis.ibatis-sqlmap.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>mysql</groupId>
+				<artifactId>mysql-connector-java</artifactId>
+				<version>${mysql-connector-java.version}</version>
+			</dependency>
+			<dependency>
+	      <groupId>commons-dbcp</groupId>
+	      <artifactId>commons-dbcp</artifactId>
+	      <version>${commons-dbcp.version}</version>
+	    </dependency>
 	  </dependencies>
   </dependencyManagement>
   
