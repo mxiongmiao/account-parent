@@ -8,18 +8,42 @@
   <packaging>pom</packaging>
 
   <name>account-parent</name>
-  <url>http://***.com</url>
-  <description>所有maven项目都继承该pom</description>
+  <url>https://github.com/mxiongmiao/account-parent</url>
+  <description>root pom of account project</description>
+  
+  <scm>
+      <connection>scm:git:git://github.com/mxiongmiao/account-parent.git</connection>
+      <developerConnection>scm:git:git@github.com:mxiongmiao/account-parent.git</developerConnection>
+      <url>https://github.com/mxiongmiao/account-parent</url>
+  </scm>
+  
+  <inceptionYear>2013</inceptionYear>
+  <developers>
+    <developer>
+        <id>mxiongmiao</id>
+        <name>mxiongmiao</name>
+        <email>mxiongmiao@gmail.com</email>
+    </developer>
+  </developers>
+  <mailingLists>
+  	<mailingList>
+  		<name>mxiongmiao</name>
+  		<post>mxiongmiao@gmail.com</post>
+  	</mailingList>
+  </mailingLists>
+  <prerequisites>
+  	<maven>2.2.1</maven>
+  </prerequisites>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.surefire.version>2.5</maven.surefire.version>
   	<maven.compiler.source.version>1.6</maven.compiler.source.version>
   	<maven.compiler.target.version>1.6</maven.compiler.target.version>
+  	<maven.compiler.plugin.version>2.2</maven.compiler.plugin.version>
+  	<maven.source.plugin>2.2.1</maven.source.plugin>
   	<maven.resource.version>2.4</maven.resource.version>
   	<junit.version>4.11</junit.version>
-  	<scope.test>test</scope.test>
-  	<skipTests>true</skipTests>
   	<spring.version>2.5.6</spring.version>
   	<javax.servlet.servlet-api.version>2.5</javax.servlet.servlet-api.version>
   	<javax.servlet.jsp.jsp-api.version>2.2</javax.servlet.jsp.jsp-api.version>
@@ -37,12 +61,13 @@
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>${maven.surefire.version}</version>
 					<configuration>
-						<skipTests>${skipTests}</skipTests>
+						<skipTests>false</skipTests>
 					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${maven.compiler.plugin.version}</version>
 					<configuration>
 						<source>${maven.compiler.source.version}</source>
 						<target>${maven.compiler.target.version}</target>
@@ -60,13 +85,14 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
+					<version>${maven.source.plugin}</version>
 					<!-- Multiple specifications of a set of goals to execute during the 
  build lifecycle, each having (possibly) different configuration. -->
 					<executions>
 						<execution>
 							<id>attach-sources</id>
 							<goals>
-								<goal>attach-sources</goal>
+								<goal>jar</goal>
 							</goals>
 						</execution>
 					</executions>
@@ -109,7 +135,7 @@
 	      <groupId>junit</groupId>
 	      <artifactId>junit</artifactId>
 	      <version>${junit.version}</version>
-	      <scope>${scope.test}</scope>
+	      <scope>test</scope>
 	    </dependency>
 	    <dependency>
 			 <groupId>org.springframework</groupId>
