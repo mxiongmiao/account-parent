@@ -45,12 +45,21 @@
   	<maven.resource.version>2.4</maven.resource.version>
   	<junit.version>4.11</junit.version>
   	<spring.version>2.5.6</spring.version>
+  	<spring-webmvc.version>2.5.6</spring-webmvc.version>
   	<javax.servlet.servlet-api.version>2.5</javax.servlet.servlet-api.version>
   	<javax.servlet.jsp.jsp-api.version>2.2</javax.servlet.jsp.jsp-api.version>
   	<javax.servlet.jstl.version>1.2</javax.servlet.jstl.version>
   	<org.apache.ibatis.ibatis-sqlmap.version>2.3.4.726</org.apache.ibatis.ibatis-sqlmap.version>
   	<mysql-connector-java.version>5.1.22</mysql-connector-java.version>
   	<commons-dbcp.version>1.4</commons-dbcp.version>
+  	<!-- jetty -->
+  	<maven-jetty-plugin.version>6.1.25</maven-jetty-plugin.version>
+  	<commons-lang3.version>3.1</commons-lang3.version>
+  	<httpclient.version>4.1</httpclient.version>
+  	
+  	<checkstyle.version>2.9.1</checkstyle.version>
+  	<maven.pmd.version>2.7.1</maven.pmd.version>
+  	<findbugs.maven.version>2.4.0</findbugs.maven.version>
   </properties>
 
 	<build>
@@ -60,6 +69,20 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
 					<version>${maven.surefire.version}</version>
+					<executions>
+						<execution>
+							<id>run-integration-test</id>
+							<phase>integration-test</phase>
+							<goals>
+								<goal>test</goal>
+							</goals>
+							<configuration>
+								<includes>
+									<include>**/*IT.java</include>
+								</includes>
+							</configuration>
+						</execution>
+					</executions>
 					<configuration>
 						<skipTests>false</skipTests>
 					</configuration>
@@ -100,6 +123,46 @@
 						<encoding>${project.build.sourceEncoding}</encoding>
 					</configuration>
 				</plugin>
+				<plugin>
+					<groupId>org.mortbay.jetty</groupId>
+					<artifactId>maven-jetty-plugin</artifactId>
+					<version>${maven-jetty-plugin.version}</version>
+					<configuration>
+						<webAppConfig>
+							<contextPath>/${project.build.finalName}</contextPath>
+						</webAppConfig>
+						<connectors>
+							<connector implementation="org.mortbay.jetty.nio.SelectChannelConnector">
+								<port>8080</port>
+								<maxIdleTime>60000</maxIdleTime>
+							</connector>
+						</connectors>
+						<stopPort>9966</stopPort>
+						<stopKey>stop-jetty-for-integration-test</stopKey>
+					</configuration>
+					<executions>
+						<execution>
+							<!-- 在集成测试前 启动jetty容器(by exe mvn:run) -->
+							<id>start-jetty</id>
+							<phase>pre-integration-test</phase>
+							<goals>
+								<!-- mvn jetty:run -->
+								<goal>run</goal>
+							</goals>
+							<configuration>
+								<daemon>true</daemon>
+							</configuration>
+						</execution>
+						<execution>
+							<!-- 集成测试之后关闭容器 -->
+							<id>stop-jetty</id>
+							<phase>post-integration-test</phase>
+							<goals>
+								<goal>stop</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 		<resources>
@@ -107,22 +170,75 @@
 				<!-- Describe the directory where the resources are stored. The path 
  is relative to the POM. -->
 				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<exclude>applicationContext.xml</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
 				<!-- Whether resources are filtered to replace tokens with 
  parameterised values or not. The values are taken from the 
  properties element and from the properties in the files listed in 
  the filters element. -->
 				<filtering>true</filtering>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
+				<includes>
+					<include>applicationContext.xml</include>
+				</includes>
 			</resource>
 		</resources>
+		<!-- we don't need testResources here, we can switch env with profile for test and others. 
+		and use the same resources in all envs, do like this: diff profiles determin diff datasources and others.
+		-->
 		<testResources>
 			<testResource>
+				<!-- 其他资源测试和正式环境共享 -->
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<excludes>
+					<!-- 测试有自己的数据库配置(profile 是一种更好的机制) -->
+					<exclude>**/*jdbc*.properties</exclude>
+				</excludes>
+			</testResource>
+			<testResource>
 				<directory>src/test/resources</directory>
+				<filtering>false</filtering>
 			</testResource>
 		</testResources>
 	</build>
+	<reporting>
+		<plugins>
+			<plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-checkstyle-plugin</artifactId>
+         <version>${checkstyle.version}</version>
+         <configuration>
+           <configLocation>${basedir}/checkstyle.xml</configLocation>
+           <enableRulesSummary>false</enableRulesSummary>
+         </configuration>
+       </plugin>
+       <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-pmd-plugin</artifactId>
+         <version>${maven.pmd.version}</version>
+         <configuration>
+           <rulesets>
+             <ruleset>checkstyle.xml</ruleset>
+           </rulesets>
+           <targetJdk>${maven.compiler.target.version}</targetJdk>
+         </configuration>
+       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>${findbugs.maven.version}</version>
+        <configuration>
+          <threshold>Normal</threshold>
+          <effort>Default</effort>
+       </configuration>
+      </plugin>
+		</plugins>
+	</reporting>
 	
 	<!-- 
 		  *dependencyManagement 不会给当前项目和子项目引入实际的依赖， 不过却可以被子项目继承，
@@ -141,6 +257,11 @@
 			 <groupId>org.springframework</groupId>
 			 <artifactId>spring</artifactId>
 			 <version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-webmvc</artifactId>
+				<version>${spring-webmvc.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.servlet</groupId>
@@ -176,6 +297,16 @@
 	      <artifactId>commons-dbcp</artifactId>
 	      <version>${commons-dbcp.version}</version>
 	    </dependency>
+	    <dependency>
+	    	<groupId>org.apache.commons</groupId>
+			  <artifactId>commons-lang3</artifactId>
+			  <version>${commons-lang3.version}</version>
+	    </dependency>
+			<dependency>
+			  <groupId>org.apache.httpcomponents</groupId>
+			  <artifactId>httpclient</artifactId>
+			  <version>${httpclient.version}</version>
+			</dependency>
 	  </dependencies>
   </dependencyManagement>
   
